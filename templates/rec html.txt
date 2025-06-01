@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Price Prediction and Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .recommendation {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .recommendation h4 {
+            margin-bottom: 10px;
+        }
+        .forecast-table {
+            margin-top: 20px;
+        }
+        .forecast-table td, .forecast-table th {
+            padding: 10px;
+            text-align: center;
+        }
+        .forecast-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="my-4 text-center">Crop Price Prediction and Recommendations</h1>
+
+    <!-- Error or Success Messages -->
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+    {% if message %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <!-- Forecast Table and Graph -->
+    {% if forecast_table %}
+    <h3>Forecasted Prices</h3>
+    <table class="table table-bordered forecast-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Predicted Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for date, price in forecast_table %}
+            <tr>
+                <td>{{ date }}</td>
+                <td>{{ price | round(2) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Price Forecast Graph</h3>
+    <img src="{{ graph_url }}" alt="Price Forecast Graph" class="img-fluid">
+    {% endif %}
+
+    <!-- Recommendations Section -->
+    {% if farmer_seller_recommendations %}
+    <h3>Farmer/Seller Recommendations</h3>
+    <div class="recommendation">
+        {% for action in farmer_seller_recommendations %}
+        <h4>Commodity: {{ action.commodity }}</h4>
+        <p><strong>Trend:</strong> {{ action.trend }}</p>
+        <p><strong>Action:</strong> {{ action.farmer_seller_action }}</p>
+        <hr>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if consumer_recommendations %}
+    <h3>Consumer Recommendations</h3>
+    <div class="recommendation">
+        {% for action in consumer_recommendations %}
+        <h4>Commodity: {{ action.commodity }}</h4>
+        <p><strong>Trend:</strong> {{ action.trend }}</p>
+        <p><strong>Action:</strong> {{ action.consumer_action }}</p>
+        <hr>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if government_recommendations %}
+    <h3>Government Recommendations</h3>
+    <div class="recommendation">
+        {% for action in government_recommendations %}
+        <h4>Commodity: {{ action.commodity }}</h4>
+        <p><strong>Trend:</strong> {{ action.trend }}</p>
+        <p><strong>Action:</strong> {{ action.government_action }}</p>
+        <hr>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Upload Form -->
+    <form action="/train" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="csv_file">Upload CSV file for training</label>
+            <input type="file" class="form-control-file" id="csv_file" name="csv_file" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Train Model</button>
+    </form>
+
+    <hr>
+
+    <form action="/predict" method="post">
+        <div class="form-group">
+            <label for="days">Number of Days to Forecast:</label>
+            <input type="number" class="form-control" id="days" name="days" required>
+        </div>
+        <button type="submit" class="btn btn-success">Generate Forecast</button>
+    </form>
+
+    <hr>
+
+    <a href="/download-data" class="btn btn-info">Download Training Data</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

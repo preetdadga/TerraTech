@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Price Forecast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0f766e',
+            secondary: '#164e63',
+            accent: '#5eead4',
+          },
+        },
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-br from-white to-slate-100 min-h-screen text-gray-800">
+  <div class="max-w-5xl mx-auto p-6 space-y-12">
+
+    <header class="text-center">
+      <h1 class="text-4xl font-extrabold text-primary mb-2">🌾 Crop Price Forecast</h1>
+      <p class="text-gray-600 text-lg">Predict, analyze, and decide smarter.</p>
+    </header>
+
+    <!-- Upload CSV -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h2 class="text-2xl font-bold text-secondary mb-4">📂 Upload Training CSV</h2>
+      <form action="/train" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <input type="file" name="csv_file" accept=".csv" required class="block w-full px-4 py-2 border rounded-md">
+
+        <label for="model_type" class="block font-semibold">Model Type:</label>
+        <select name="model_type" id="model_type" required class="w-full px-4 py-2 border rounded-md">
+          <option value="lstm">LSTM</option>
+          <option value="xgboost">XGBoost</option>
+          <option value="hybrid" selected>Hybrid (LSTM + XGBoost)</option>
+        </select>
+
+        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-md hover:bg-emerald-700 transition-all">Train Model</button>
+      </form>
+    </section>
+
+    <!-- Predict Prices -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h2 class="text-2xl font-bold text-secondary mb-4">📈 Predict Future Prices</h2>
+      <form action="/predict" method="POST" class="space-y-4">
+        <label for="days" class="block font-semibold">Forecast Days:</label>
+        <input type="number" name="days" id="days" min="1" required class="w-full px-4 py-2 border rounded-md">
+        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">Forecast</button>
+      </form>
+    </section>
+
+    <!-- Download -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h2 class="text-2xl font-bold text-secondary mb-4">📥 Download Training Data</h2>
+      <form action="/download-data" method="GET">
+        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">Download data.csv</button>
+      </form>
+    </section>
+
+    {% if forecast_table %}
+    <!-- Forecast Table -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h3 class="text-xl font-bold mb-4 text-secondary">🔢 Forecast Table</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-md">
+          <thead class="bg-slate-200">
+            <tr><th class="px-4 py-2">Date</th><th class="px-4 py-2">Predicted Price</th></tr>
+          </thead>
+          <tbody>
+            {% for date, price in forecast_table %}
+            <tr class="border-t">
+              <td class="px-4 py-2">{{ date }}</td>
+              <td class="px-4 py-2">{{ price | round(2) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Forecast Graph -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h3 class="text-xl font-bold mb-4 text-secondary">📊 Forecast Graph</h3>
+      <img src="{{ graph_url }}" alt="Forecast Graph" class="w-full h-auto border rounded">
+    </section>
+
+    <!-- Summary -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h3 class="text-xl font-bold mb-4 text-secondary">🧾 Summary Recommendation</h3>
+      <p class="text-lg text-gray-700 font-medium">{{ summary_recommendation }}</p>
+    </section>
+
+    <!-- Daily Recommendations -->
+    <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
+      <h3 class="text-xl font-bold mb-4 text-secondary">🧭 Daily Recommendations</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-md">
+          <thead class="bg-slate-200">
+            <tr>
+              <th class="px-4 py-2">Date</th>
+              <th class="px-4 py-2">Farmer/Seller</th>
+              <th class="px-4 py-2">Consumer</th>
+              <th class="px-4 py-2">Government</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(forecast_table|length) %}
+            <tr class="border-t">
+              <td class="px-4 py-2">{{ forecast_table[i][0] }}</td>
+              <td class="px-4 py-2">{{ farmer_seller_recommendations[i].farmer_seller_action }}</td>
+              <td class="px-4 py-2">{{ consumer_recommendations[i].consumer_action }}</td>
+              <td class="px-4 py-2">{{ government_recommendations[i].government_action }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Feedback Messages -->
+    <section>
+      {% if message %}<p class="text-green-600 font-semibold">✔ {{ message }}</p>{% endif %}
+      {% if metrics %}<p class="text-blue-600 font-semibold">📊 {{ metrics }}</p>{% endif %}
+      {% if error %}<p class="text-red-600 font-semibold">❌ {{ error }}</p>{% endif %}
+    </section>
+
+  </div>
+</body>
+</html>
