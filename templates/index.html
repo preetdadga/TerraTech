@@ -69,13 +69,13 @@
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm border rounded-md">
           <thead class="bg-slate-200">
-            <tr><th class="px-4 py-2">Date</th><th class="px-4 py-2">Predicted Price</th></tr>
+            <tr><th class="px-4 py-2">Date</th><th class="px-4 py-2">Predicted Price (₹)</th></tr>
           </thead>
           <tbody>
             {% for date, price in forecast_table %}
             <tr class="border-t">
               <td class="px-4 py-2">{{ date }}</td>
-              <td class="px-4 py-2">{{ price | round(2) }}</td>
+              <td class="px-4 py-2">₹{{ price | round(2) }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -95,23 +95,27 @@
       <p class="text-lg text-gray-700 font-medium">{{ summary_recommendation }}</p>
     </section>
 
-    <!-- Daily Recommendations -->
+    <!-- Weekly Recommendations -->
     <section class="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
-      <h3 class="text-xl font-bold mb-4 text-secondary">🧭 Daily Recommendations</h3>
+      <h3 class="text-xl font-bold mb-4 text-secondary">🧭 Weekly Recommendations</h3>
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm border rounded-md">
           <thead class="bg-slate-200">
             <tr>
-              <th class="px-4 py-2">Date</th>
+              <th class="px-4 py-2">Week</th>
+              <th class="px-4 py-2">Date Range</th>
+              <th class="px-4 py-2">Avg Price (₹)</th>
               <th class="px-4 py-2">Farmer/Seller</th>
               <th class="px-4 py-2">Consumer</th>
               <th class="px-4 py-2">Government</th>
             </tr>
           </thead>
           <tbody>
-            {% for i in range(forecast_table|length) %}
+            {% for i in range(farmer_seller_recommendations|length) %}
             <tr class="border-t">
-              <td class="px-4 py-2">{{ forecast_table[i][0] }}</td>
+              <td class="px-4 py-2">{{ farmer_seller_recommendations[i].week }}</td>
+              <td class="px-4 py-2">{{ farmer_seller_recommendations[i].dates }}</td>
+              <td class="px-4 py-2">₹{{ farmer_seller_recommendations[i].avg_price }}</td>
               <td class="px-4 py-2">{{ farmer_seller_recommendations[i].farmer_seller_action }}</td>
               <td class="px-4 py-2">{{ consumer_recommendations[i].consumer_action }}</td>
               <td class="px-4 py-2">{{ government_recommendations[i].government_action }}</td>
